@@ -1,8 +1,11 @@
 from sqlalchemy import Column, Integer, String, JSON
-from database import Base
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(DeclarativeBase):
+    pass
 
 class Scheme(Base):
-    _tablename_ = "schemes"
+    __tablename__ = "schemes"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
@@ -12,7 +15,7 @@ class Scheme(Base):
     apply_link = Column(String)
 
 class User(Base):
-    _tablename_ = "users"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     age = Column(Integer)
