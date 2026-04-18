@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+import os
+
+# Load .env FIRST before anything else
 from fastapi import FastAPI
 from models import Base
 from database import engine
