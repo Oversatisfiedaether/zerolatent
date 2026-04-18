@@ -2,7 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 psycopg2-binary
-anthropic
-googletrans==4.0.0rc1
 python-dotenv
 pydantic

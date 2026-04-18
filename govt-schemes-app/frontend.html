@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Language Selector</title>
+  <link rel="stylesheet" href="frontend.css">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: Poppins, sans-serif;
+      text-align: center;
+      padding-top: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: -30px;
+      left: -30px;
+      width: calc(100% + 60px);
+      height: calc(100% + 60px);
+      background: url('I love my India 🇮🇳❤️ 19 January 2025.jpg') center/cover no-repeat;
+      filter: blur(12px);
+      z-index: -1;
+    }
+
+    .title {
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #2563eb, #7c3aed, #38bdf8);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientMove 3s linear infinite, fadeSlide 1.2s ease-out;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0%; }
+      100% { background-position: 200%; }
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    button {
+      display: block;
+      margin: 15px auto;
+      padding: 14px;
+      width: 240px;
+      border-radius: 10px;
+      border: 2px solid #2563eb;
+      background: rgba(255,255,255,0.7);
+      color: #2563eb;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-family: Poppins, sans-serif;
+    }
+
+    button:hover {
+      background: #2563eb;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .container {
+      display: none;
+    }
+
+    #page1 {
+      display: block;
+    }
+
+    textarea {
+      width: 70%;
+      height: 120px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #2563eb;
+      font-size: 16px;
+      font-family: Poppins, sans-serif;
+      resize: none;
+      background: rgba(255,255,255,0.8);
+    }
+
+    #resultBox {
+      margin: 15px auto;
+      width: 70%;
+      background: rgba(255,255,255,0.85);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 50px;
+      white-space: pre-wrap;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1e3a5f;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+    }
+
+    #resultTitle {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #1e3a5f;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAGE 1 — Language Selection -->
+  <div id="page1" class="container">
+    <h1 class="title">Welcome</h1>
+    <button onclick="selectLanguage('hindi')">🇮🇳 हिंदी</button>
+    <button onclick="selectLanguage('english')">🌐 English</button>
+    <button onclick="selectLanguage('bengali')">বাংলা</button>
+    <button onclick="selectLanguage('tamil')">தமிழ்</button>
+    <button onclick="selectLanguage('telugu')">తెలుగు</button>
+  </div>
+
+  <!-- PAGE 2 — List of Schemes -->
+  <div id="page2" class="container">
+    <h1 id="titleText" class="page-title">List of Schemes</h1>
+    <button id="ugBtn">Undergraduate</button>
+    <button id="gradBtn">Graduate</button>
+    <button id="searchBtn" onclick="goToSearch()">Search Eligibility</button>
+    <button id="applyBtn">Apply for Schemes</button>
+    <button onclick="goBack()" id="backBtn">⬅ Back</button>
+  </div>
+
+  <!-- PAGE 3 — AI Search -->
+  <div id="page3" class="container">
+    <h1 id="searchTitle" class="page-title">Find Your Schemes</h1>
+
+    <textarea
+      id="userInput"
+      placeholder="Describe your situation..."
+    ></textarea>
+
+    <br><br>
+
+    <button id="findBtn" onclick="findSchemes()">Find Schemes</button>
+
+    <div id="resultTitle"></div>
+    <div id="resultBox"></div>
+
+    <button onclick="goBackToPage2()">⬅ Back</button>
+  </div>
+
+  <script>
+    let selectedLang = "english";
+
+    const translations = {
+      english: {
+        title: "List of Schemes",
+        ug: "Undergraduate",
+        grad: "Graduate",
+        search: "Search Eligibility",
+        apply: "Apply for Schemes",
+        back: "⬅ Back",
+        searchTitle: "Find Your Schemes",
+        placeholder: "Describe your situation...",
+        findBtn: "Find Schemes",
+        loading: "Finding schemes for you...",
+        resultTitle: "Matching Schemes",
+        error: "Error connecting to server. Make sure backend is running!"
+      },
+      hindi: {
+        title: "योजनाओं की सूची",
+        ug: "स्नातक",
+        grad: "स्नातकोत्तर",
+        search: "योग्यता खोजें",
+        apply: "योजना के लिए आवेदन करें",
+        back: "⬅ वापस",
+        searchTitle: "अपनी योजनाएं खोजें",
+        placeholder: "अपनी स्थिति बताएं...",
+        findBtn: "योजनाएं खोजें",
+        loading: "योजनाएं खोजी जा रही हैं...",
+        resultTitle: "मिलती-जुलती योजनाएं",
+        error: "सर्वर से कनेक्ट नहीं हो पाया।"
+      },
+      bengali: {
+        title: "স্কিমের তালিকা",
+        ug: "স্নাতক",
+        grad: "স্নাতকোত্তর",
+        search: "যোগ্যতা খুঁজুন",
+        apply: "স্কিমের জন্য আবেদন করুন",
+        back: "⬅ ফিরে যান",
+        searchTitle: "আপনার স্কিম খুঁজুন",
+        placeholder: "আপনার পরিস্থিতি বর্ণনা করুন...",
+        findBtn: "স্কিম খুঁজুন",
+        loading: "স্কিম খোঁজা হচ্ছে...",
+        resultTitle: "মিলে যাওয়া স্কিম",
+        error: "সার্ভারের সাথে সংযোগ করতে পারেনি।"
+      },
+      tamil: {
+        title: "திட்டங்களின் பட்டியல்",
+        ug: "இளங்கலை",
+        grad: "முதுகலை",
+        search: "தகுதி தேடல்",
+        apply: "திட்டங்களுக்கு விண்ணப்பிக்கவும்",
+        back: "⬅ பின்செல்",
+        searchTitle: "உங்கள் திட்டங்களை கண்டறியுங்கள்",
+        placeholder: "உங்கள் நிலையை விவரிக்கவும்...",
+        findBtn: "திட்டங்களை தேடு",
+        loading: "திட்டங்கள் தேடப்படுகின்றன...",
+        resultTitle: "பொருத்தமான திட்டங்கள்",
+        error: "சேவையகத்துடன் இணைக்க முடியவில்லை."
+      },
+      telugu: {
+        title: "పథకాల జాబితా",
+        ug: "అండర్‌గ్రాడ్యుయేట్",
+        grad: "గ్రాడ్యుయేట్",
+        search: "అర్హతను శోధించండి",
+        apply: "పథకాల కోసం దరఖాస్తు చేయండి",
+        back: "⬅ వెనక్కి వెళ్లండి",
+        searchTitle: "మీ పథకాలను కనుగొనండి",
+        placeholder: "మీ పరిస్థితిని వివరించండి...",
+        findBtn: "పథకాలు వెతకండి",
+        loading: "పథకాలు వెతుకుతున్నాం...",
+        resultTitle: "సరిపోలిన పథకాలు",
+        error: "సర్వర్‌కు కనెక్ట్ అవడంలో లోపం."
+      }
+    };
+
+    function selectLanguage(lang) {
+      selectedLang = lang;
+      applyLanguage();
+      document.getElementById("page1").style.display = "none";
+      document.getElementById("page2").style.display = "block";
+    }
+
+    function applyLanguage() {
+      const t = translations[selectedLang];
+      document.getElementById("titleText").innerText = t.title;
+      document.getElementById("ugBtn").innerText = t.ug;
+      document.getElementById("gradBtn").innerText = t.grad;
+      document.getElementById("searchBtn").innerText = t.search;
+      document.getElementById("applyBtn").innerText = t.apply;
+      document.getElementById("backBtn").innerText = t.back;
+    }
+
+    function goBack() {
+      document.getElementById("page2").style.display = "none";
+      document.getElementById("page1").style.display = "block";
+    }
+
+    function goBackToPage2() {
+      document.getElementById("page3").style.display = "none";
+      document.getElementById("page2").style.display = "block";
+      document.getElementById("resultBox").innerText = "";
+      document.getElementById("resultTitle").innerText = "";
+      document.getElementById("userInput").value = "";
+    }
+
+    function goToSearch() {
+      const t = translations[selectedLang];
+      document.getElementById("page2").style.display = "none";
+      document.getElementById("page3").style.display = "block";
+      document.getElementById("searchTitle").innerText = t.searchTitle;
+      document.getElementById("userInput").placeholder = t.placeholder;
+      document.getElementById("findBtn").innerText = t.findBtn;
+      document.getElementById("resultTitle").innerText = "";
+      document.getElementById("resultBox").innerText = "";
+    }
+
+    async function findSchemes() {
+      const t = translations[selectedLang];
+      const message = document.getElementById("userInput").value;
+
+      if (!message.trim()) return;
+
+      document.getElementById("resultBox").innerText = t.loading;
+      document.getElementById("resultTitle").innerText = "";
+      document.getElementById("findBtn").disabled = true;
+
+      try {
+        const response = await fetch("127.0.0.1:8000/docs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: message,
+            language: selectedLang
+          })
+        });
+
+        const data = await response.json();
+        document.getElementById("resultTitle").innerText = t.resultTitle;
+        document.getElementById("resultBox").innerText = data.response;
+
+      } catch (error) {
+        document.getElementById("resultBox").innerText = t.error;
+      }
+
+      document.getElementById("findBtn").disabled = false;
+    }
+  </script>
+
+</body>
+</html>
